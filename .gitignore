@@ -1,0 +1,97 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables and local secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+*.secret
+*.secrets
+
+# Private keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+!certs/README.md
+
+# Packaging and distribution
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+wheelhouse/
+MANIFEST
+
+# Test, coverage, and type-checking artifacts
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyright/
+.ruff_cache/
+
+# Local databases and runtime data
+*.db
+*.sqlite
+*.sqlite3
+instance/
+*.log
+logs/
+tmp/
+temp/
+
+# Jupyter/IPython
+.ipynb_checkpoints/
+
+# IDEs and editors
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/*.code-snippets
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+
+# Operating-system files
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+
+# Docker and local orchestration overrides
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Local tooling and generated reports
+.cache/
+.tox/
+.nox/
+reports/
+*.sarif
+*.tmp
+*.bak
+*.swp
+*.swo
