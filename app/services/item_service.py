@@ -3,6 +3,7 @@ from app.models.item import ItemModel
 from app.repositories.item_repository import ItemRepository
 from app.schemas.item import ItemCreate
 
+
 class ItemService:
     def __init__(self, repository: ItemRepository) -> None:
         self.repository = repository

@@ -23,6 +23,43 @@ uv sync
 versiones exactas definidas en `uv.lock`. No es necesario ejecutar `uv venv`
 por separado.
 
+### Hooks de Git
+
+Después de instalar las dependencias, activa los hooks de `pre-commit`:
+
+```powershell
+uv run pre-commit install
+```
+
+Esto registra las validaciones de Ruff y Gitleaks en el repositorio local.
+Se ejecutarán automáticamente antes de cada commit. Para ejecutar todas las
+validaciones manualmente sobre el proyecto:
+
+```powershell
+uv run pre-commit run --all-files
+```
+
+Los hooks locales pueden omitirse con `git commit --no-verify`, por lo que
+CI/CD también debe ejecutar `uv run pre-commit run --all-files`.
+
+### Integración continua y Pull Requests
+
+El workflow de GitHub Actions definido en `.github/workflows/ci.yml` se ejecuta
+cuando hay un `push` a `main`, `dev` o `qa`, y cuando se crea o actualiza un
+Pull Request dirigido a cualquiera de esas ramas. Ejecuta las validaciones de
+`pre-commit`, Mypy y Pytest.
+
+Para impedir que un Pull Request se fusione cuando las validaciones fallen,
+configura reglas de protección para `main`, `dev` y `qa` en GitHub:
+
+1. Ve a **Settings → Branches** o **Rules → Rulesets**.
+2. Activa **Require status checks to pass before merging**.
+3. Selecciona el job `quality-and-test`.
+4. Opcionalmente, exige Pull Requests, aprobaciones y ramas actualizadas.
+
+Sin esta configuración, GitHub mostrará el fallo del CI, pero no
+necesariamente bloqueará el merge.
+
 Si existe un archivo `.env.example`, crea la configuración local:
 
 ```powershell
@@ -40,6 +77,59 @@ También puedes ejecutar comandos sin activarlo:
 ```powershell
 uv run uvicorn app.main:app --reload
 ```
+
+### Configuración mediante variables de entorno
+
+Las variables de entorno que controlan el comportamiento de la aplicación
+deben declararse con su tipo en `app/core/config.py`, dentro de la clase
+`Settings`. No uses `os.getenv()` directamente en otros módulos.
+
+Al agregar una variable nueva:
+
+1. Declárala en `Settings`, indicando si es obligatoria o incluyendo un valor
+   predeterminado.
+2. Agrégala también a `.env.example` para documentar la configuración
+   necesaria para nuevos proyectos.
+3. Usa `.env` para la configuración local. Este archivo no debe contenerse en
+   el repositorio si incluye secretos.
+4. Configura la variable directamente en el sistema de despliegue para
+   `staging` y `production`.
+
+Ejemplo:
+
+```python
+class Settings(BaseSettings):
+    DATABASE_URL: str
+    REDIS_URL: str = "redis://localhost:6379"
+```
+
+```env
+DATABASE_URL=postgresql+asyncpg://user:password@localhost/app
+REDIS_URL=redis://localhost:6379
+```
+
+Pydantic carga los valores desde `.env` o desde las variables del sistema,
+convierte sus tipos y reporta un error al iniciar si falta una variable
+obligatoria.
+
+#### Nivel de logging
+
+La variable `LOG_LEVEL` define el nivel mínimo de mensajes que se registran.
+Los niveles disponibles son `DEBUG`, `INFO`, `WARNING` y `ERROR`.
+
+Valores recomendados:
+
+```text
+development → DEBUG
+staging      → INFO
+production   → INFO
+```
+
+`DEBUG` es útil durante el desarrollo, pero debe evitarse en producción porque
+genera mucho ruido y puede registrar información innecesaria. En producción,
+`INFO` permite observar eventos operativos importantes sin generar un volumen
+excesivo de logs. Usa `WARNING` o `ERROR` únicamente si necesitas reducir aún
+más el volumen.
 
 ### Instalación para producción
 
